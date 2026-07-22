@@ -27,21 +27,21 @@ jobs:
 
       - name: Send SVGD digest
         env:
-          CUSTOM_CONFIG: ${{ vars.CUSTOM_CONFIG_SVGD }}
+          CUSTOM_CONFIG: ${{ secrets.CUSTOM_CONFIG_SVGD }}
         run: |
           printf "%b\n" "$CUSTOM_CONFIG" > config/custom.yaml
           uv run src/zotero_arxiv_daily/main.py
 
       - name: Send continuous-time RL digest
         env:
-          CUSTOM_CONFIG: ${{ vars.CUSTOM_CONFIG_CONTINUOUS_RL }}
+          CUSTOM_CONFIG: ${{ secrets.CUSTOM_CONFIG_CONTINUOUS_RL }}
         run: |
           printf "%b\n" "$CUSTOM_CONFIG" > config/custom.yaml
           uv run src/zotero_arxiv_daily/main.py
 
       - name: Send multiphase-physics digest
         env:
-          CUSTOM_CONFIG: ${{ vars.CUSTOM_CONFIG_MULTIPHASE }}
+          CUSTOM_CONFIG: ${{ secrets.CUSTOM_CONFIG_MULTIPHASE }}
         run: |
           printf "%b\n" "$CUSTOM_CONFIG" > config/custom.yaml
           uv run src/zotero_arxiv_daily/main.py
