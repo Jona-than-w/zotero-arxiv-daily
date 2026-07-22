@@ -1,34 +1,47 @@
-name: Send emails daily
+name: Send three research digests
+
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 22 * * *'
+    - cron: "0 22 * * *"
 
 jobs:
   calculate-and-send:
     runs-on: ubuntu-latest
+
+    env:
+      ZOTERO_ID: ${{ secrets.ZOTERO_ID }}
+      ZOTERO_KEY: ${{ secrets.ZOTERO_KEY }}
+      SENDER: ${{ secrets.SENDER }}
+      RECEIVER: ${{ secrets.RECEIVER }}
+      SENDER_PASSWORD: ${{ secrets.SENDER_PASSWORD }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-        with:
-          repository: ${{ vars.REPOSITORY }}
-          ref: ${{ vars.REF }}
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v7
 
-      - name: Run script
+      - name: Send SVGD digest
         env:
-          ZOTERO_ID: ${{ secrets.ZOTERO_ID }}
-          ZOTERO_KEY: ${{ secrets.ZOTERO_KEY }}
-          SENDER: ${{ secrets.SENDER }}
-          RECEIVER: ${{ secrets.RECEIVER }}
-          SENDER_PASSWORD: ${{ secrets.SENDER_PASSWORD }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
-          CUSTOM_CONFIG: ${{ vars.CUSTOM_CONFIG }}
+          CUSTOM_CONFIG: ${{ vars.CUSTOM_CONFIG_SVGD }}
         run: |
           printf "%b\n" "$CUSTOM_CONFIG" > config/custom.yaml
-          echo "Use custom config: "
-          cat config/custom.yaml
+          uv run src/zotero_arxiv_daily/main.py
+
+      - name: Send continuous-time RL digest
+        env:
+          CUSTOM_CONFIG: ${{ vars.CUSTOM_CONFIG_CONTINUOUS_RL }}
+        run: |
+          printf "%b\n" "$CUSTOM_CONFIG" > config/custom.yaml
+          uv run src/zotero_arxiv_daily/main.py
+
+      - name: Send multiphase-physics digest
+        env:
+          CUSTOM_CONFIG: ${{ vars.CUSTOM_CONFIG_MULTIPHASE }}
+        run: |
+          printf "%b\n" "$CUSTOM_CONFIG" > config/custom.yaml
           uv run src/zotero_arxiv_daily/main.py
